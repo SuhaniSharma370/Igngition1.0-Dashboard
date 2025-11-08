@@ -3,19 +3,32 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Rider Telemetry Live</title>
+  <title>Rider Telemetry Pro</title>
 
-  <!-- Styles -->
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Leaflet -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
   <style>
     :root {
-      --primary: #0055cc;
-      --danger: #dc2626;
-      --success: #16a34a;
+      --bg: #0f172a;
+      --card: #1e293b;
+      --text: #e2e8f0;
+      --text-muted: #94a3b8;
+      --primary: #3b82f6;
+      --success: #10b981;
       --warning: #f59e0b;
-      --dark: #1f2937;
-      --light: #f8fafc;
-      --gray: #64748b;
-      --border: #e2e8f0;
+      --danger: #ef4444;
+      --accent: #8b5cf6;
+      --border: #334155;
+      --shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+      --radius: 16px;
     }
 
     * {
@@ -25,114 +38,59 @@
     }
 
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #f0f7ff 0%, #e0ecff 100%);
-      color: var(--dark);
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
       min-height: 100vh;
       padding: 1rem;
-      line-height: 1.5;
+      line-height: 1.6;
     }
 
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* Header */
     header {
       text-align: center;
       margin-bottom: 1.5rem;
     }
 
     h1 {
-      font-size: 1.8rem;
-      font-weight: 600;
-      color: var(--primary);
-    }
-
-    .status {
-      display: inline-block;
-      padding: 0.35rem 0.75rem;
-      border-radius: 2rem;
-      font-size: 0.85rem;
-      font-weight: 600;
-      margin-top: 0.5rem;
-    }
-
-    .status.connected { background: rgba(22, 163, 74, 0.1); color: var(--success); }
-    .status.disconnected { background: rgba(220, 38, 38, 0.1); color: var(--danger); }
-
-    .metrics {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: 1rem;
-      margin: 1.5rem 0;
-    }
-
-    .metric {
-      background: white;
-      padding: 1.2rem;
-      border-radius: 16px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-      text-align: center;
-      border: 1px solid var(--border);
-    }
-
-    .metric h3 {
-      font-size: 2.2rem;
+      font-size: 2rem;
       font-weight: 700;
-      color: var(--primary);
-      margin-bottom: 0.25rem;
+      background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.5rem;
     }
 
-    .metric p {
+    .status-bar {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1rem;
       font-size: 0.9rem;
-      color: var(--gray);
       font-weight: 500;
     }
 
-    .lean-display {
-      font-size: 1.8rem !important;
-      color: #7c3aed;
-    }
-
-    .chart-container, #map {
-      background: white;
-      border-radius: 16px;
-      padding: 1rem;
-      margin: 1.5rem 0;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-      border: 1px solid var(--border);
-    }
-
-    #map {
-      height: 45vh;
-      border-radius: 16px;
-    }
-
-    canvas {
-      max-height: 200px;
-    }
-
-    .alert {
-      position: fixed;
-      top: 1rem;
-      left: 50%;
-      transform: translateX(-50%);
-      background: var(--danger);
-      color: white;
-      padding: 1rem 1.5rem;
-      border-radius: 12px;
+    .status {
+      padding: 0.4rem 1rem;
+      border-radius: 2rem;
       font-weight: 600;
-      box-shadow: 0 10px 25px rgba(220, 38, 38, 0.3);
-      z-index: 1000;
-      animation: pulse 0.6s ease-in-out;
-      display: none;
     }
 
-    @keyframes pulse {
-      0% { transform: translateX(-50%) scale(0.9); }
-      50% { transform: translateX(-50%) scale(1.05); }
-      100% { transform: translateX(-50%) scale(1); }
-    }
+    .status.connected { background: rgba(16, 185, 129, 0.2); color: var(--success); }
+    .status.disconnected { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
 
+    /* Controls */
     .controls {
-      text-align: center;
-      margin: 1rem 0;
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin: 1.5rem 0;
+      flex-wrap: wrap;
     }
 
     button {
@@ -143,95 +101,249 @@
       border-radius: 12px;
       font-weight: 600;
       cursor: pointer;
-      margin: 0 0.5rem;
-      transition: all 0.2s;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
     }
 
     button:hover {
-      background: #0044aa;
       transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
     }
 
     button.danger {
       background: var(--danger);
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
     }
 
-    .info {
-      font-size: 0.85rem;
-      color: var(--gray);
-      text-align: center;
+    button.danger:hover {
+      box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
+    }
+
+    /* Grid Layout */
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
       margin-top: 1rem;
     }
 
-    @media (max-width: 480px) {
-      h1 { font-size: 1.5rem; }
-      .metric h3 { font-size: 1.8rem; }
-      canvas { max-height: 150px; }
+    @media (max-width: 992px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Metric Cards */
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+      .metrics {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .metric-card {
+      background: var(--card);
+      padding: 1.5rem;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      text-align: center;
+      transition: transform 0.3s ease;
+    }
+
+    .metric-card:hover {
+      transform: translateY(-4px);
+    }
+
+    .metric-card h3 {
+      font-size: 2.4rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .metric-card.speed h3 { color: var(--primary); }
+    .metric-card.lean h3 { color: var(--accent); }
+    .metric-card.accel h3 { color: var(--warning); }
+    .metric-card.impact h3 { color: var(--danger); }
+
+    .metric-card p {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    /* Charts & Map */
+    .chart-card, .map-card {
+      background: var(--card);
+      padding: 1.5rem;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+    }
+
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: var(--text);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-title i {
+      font-size: 1.2rem;
+      color: var(--text-muted);
+    }
+
+    canvas {
+      height: 220px !important;
+    }
+
+    #map {
+      height: 400px;
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    /* Crash Alert */
+    .crash-alert {
+      position: fixed;
+      top: 1rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--danger);
+      color: white;
+      padding: 1rem 2rem;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      box-shadow: 0 10px 30px rgba(239, 68, 68, 0.5);
+      z-index: 1000;
+      display: none;
+      animation: crashPulse 0.8s ease-in-out;
+      white-space: nowrap;
+    }
+
+    @keyframes crashPulse {
+      0% { transform: translateX(-50%) scale(0.8); opacity: 0; }
+      50% { transform: translateX(-50%) scale(1.05); }
+      100% { transform: translateX(-50%) scale(1); opacity: 1; }
+    }
+
+    /* Info Footer */
+    .info {
+      text-align: center;
+      margin-top: 2rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .info a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    .info a:hover {
+      text-decoration: underline;
     }
   </style>
-
-  <!-- Libraries -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 </head>
 <body>
 
-  <header>
-    <h1>Rider Telemetry</h1>
-    <div class="status" id="connectionStatus">Connecting...</div>
-  </header>
+  <div class="container">
 
-  <div class="controls">
-    <button id="connectBtn">Connect to Phyphox</button>
-    <button id="resetBtn" class="danger">Reset Path</button>
-  </div>
+    <!-- Header -->
+    <header>
+      <h1>Rider Telemetry Pro</h1>
+      <div class="status-bar">
+        <span>Status:</span>
+        <div class="status disconnected" id="status">Connecting...</div>
+      </div>
+    </header>
 
-  <div class="metrics">
-    <div class="metric">
-      <h3 id="speed">0</h3>
-      <p>Speed (km/h)</p>
+    <!-- Controls -->
+    <div class="controls">
+      <button id="connectBtn">Connect to Phyphox</button>
+      <button id="resetBtn" class="danger">Reset Path</button>
     </div>
-    <div class="metric">
-      <h3 id="lean" class="lean-display">0°</h3>
-      <p>Lean Angle</p>
+
+    <!-- Metrics Row -->
+    <div class="metrics">
+      <div class="metric-card speed">
+        <h3 id="speed">0.0</h3>
+        <p>Speed (km/h)</p>
+      </div>
+      <div class="metric-card lean">
+        <h3 id="lean">0°</h3>
+        <p>Lean Angle</p>
+      </div>
+      <div class="metric-card accel">
+        <h3 id="accelX">0.00</h3>
+        <p>Accel X (m/s²)</p>
+      </div>
+      <div class="metric-card impact">
+        <h3 id="impact">—</h3>
+        <p>Impact (g)</p>
+      </div>
     </div>
-    <div class="metric">
-      <h3 id="acc">0.0</h3>
-      <p>Accel X (m/s²)</p>
+
+    <!-- Main Grid: Chart + Map -->
+    <div class="grid">
+      <!-- Acceleration Chart -->
+      <div class="chart-card">
+        <div class="card-title">
+          <span>Live Acceleration (X-axis)</span>
+          <i class="fas fa-wave-square"></i>
+        </div>
+        <canvas id="accChart"></canvas>
+      </div>
+
+      <!-- Live GPS Map -->
+      <div class="map-card">
+        <div class="card-title">
+          <span>GPS Track</span>
+          <i class="fas fa-map-marker-alt"></i>
+        </div>
+        <div id="map"></div>
+      </div>
     </div>
-    <div class="metric">
-      <h3 id="impact">—</h3>
-      <p>Impact</p>
+
+    <!-- Crash Alert -->
+    <div class="crash-alert" id="crashAlert">
+      HIGH IMPACT DETECTED! CHECK RIDER NOW
     </div>
+
+    <!-- Info -->
+    <div class="info">
+      Mount sensor phone on <strong>upper chest</strong> or <strong>helmet</strong>. Use Phyphox → Remote Access.<br>
+      <a href="#" id="helpLink">How to set up Phyphox</a>
+    </div>
+
   </div>
 
-  <div class="chart-container">
-    <canvas id="accChart"></canvas>
-  </div>
-
-  <div id="map"></div>
-
-  <div class="alert" id="crashAlert">
-    HIGH IMPACT DETECTED! Check rider immediately.
-  </div>
-
-  <div class="info">
-    Mount sensor phone on <strong>upper chest</strong> or <strong>helmet</strong>. Use Phyphox → Remote Access.
-  </div>
+  <!-- Font Awesome -->
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 
   <script>
     // === CONFIG ===
-    const IMPACT_THRESHOLD = 30.0;  // ~3g
-    const GYRO_THRESHOLD = 300;     // deg/s (tune based on your experiment)
-    const MAX_DATA_POINTS = 50;
+    const IMPACT_THRESHOLD = 29.4;   // ~3g
+    const GYRO_THRESHOLD = 300;      // deg/s
+    const MAX_POINTS = 60;
+    const UPDATE_INTERVAL = 150;     // ms → ~6.6 Hz
 
-    // === DOM Elements ===
+    // === DOM ===
     const speedEl = document.getElementById('speed');
     const leanEl = document.getElementById('lean');
-    const accEl = document.getElementById('acc');
+    const accelXEl = document.getElementById('accelX');
     const impactEl = document.getElementById('impact');
-    const statusEl = document.getElementById('connectionStatus');
+    const statusEl = document.getElementById('status');
     const crashAlert = document.getElementById('crashAlert');
     const connectBtn = document.getElementById('connectBtn');
     const resetBtn = document.getElementById('resetBtn');
@@ -244,17 +356,21 @@
     // === Leaflet Map ===
     const map = L.map('map').setView([0, 0], 16);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors'
+      attribution: '© OpenStreetMap'
     }).addTo(map);
 
-    let riderPath = L.polyline([], { color: '#0055cc', weight: 5, opacity: 0.8 }).addTo(map);
-    let riderMarker = L.circleMarker([0, 0], {
-      radius: 8,
-      fillColor: '#0055cc',
-      color: '#003366',
-      weight: 2,
-      opacity: 1,
-      fillOpacity: 0.9
+    const path = L.polyline([], {
+      color: '#3b82f6',
+      weight: 6,
+      opacity: 0.9
+    }).addTo(map);
+
+    const marker = L.circleMarker([0, 0], {
+      radius: 10,
+      fillColor: '#3b82f6',
+      color: '#1e40af',
+      weight: 3,
+      fillOpacity: 1
     }).addTo(map);
 
     // === Chart.js ===
@@ -264,13 +380,14 @@
       data: {
         labels: [],
         datasets: [{
-          label: 'Accel X (m/s²)',
+          label: 'Accel X',
           data: [],
-          borderColor: '#0055cc',
-          backgroundColor: 'rgba(0, 85, 204, 0.1)',
+          borderColor: '#3b82f6',
+          backgroundColor: 'rgba(59, 130, 246, 0.1)',
           fill: true,
-          tension: 0.3,
-          pointRadius: 2
+          tension: 0.4,
+          pointRadius: 0,
+          borderWidth: 2.5
         }]
       },
       options: {
@@ -278,19 +395,17 @@
         maintainAspectRatio: false,
         plugins: { legend: { display: false } },
         scales: {
-          y: { beginAtZero: false },
+          y: { beginAtZero: false, grid: { color: '#334155' }, ticks: { color: '#94a3b8' } },
           x: { display: false }
-        }
+        },
+        animation: { duration: 0 }
       }
     });
 
     // === Functions ===
     function connect() {
-      phyphoxUrl = prompt("Enter Phyphox Remote Access URL (e.g., http://192.168.1.34:8080)")?.trim();
+      phyphoxUrl = prompt("Enter Phyphox Remote Access URL:\n(e.g., http://192.168.1.34:8080)")?.trim();
       if (!phyphoxUrl) return;
-
-      statusEl.textContent = "Connecting...";
-      statusEl.className = "status disconnected";
       testConnection();
     }
 
@@ -311,56 +426,56 @@
 
     function startStreaming() {
       if (interval) clearInterval(interval);
-      interval = setInterval(updateTelemetry, 200); // 5 Hz
+      interval = setInterval(update, UPDATE_INTERVAL);
     }
 
-    function updateTelemetry() {
+    function update() {
       if (!isConnected) return;
 
       fetch(phyphoxUrl)
         .then(r => r.json())
-        .then(data => {
-          // Extract latest values
-          const ax = data.buffer.accX?.last ?? 0;
-          const ay = data.buffer.accY?.last ?? 0;
-          const az = data.buffer.accZ?.last ?? 0;
-          const speed = (data.buffer.speed?.last ?? 0) * 3.6; // m/s → km/h
-          const lat = data.buffer.latitude?.last;
-          const lon = data.buffer.longitude?.last;
-          const gyroX = data.buffer.rotX?.last ?? 0;
+        .then(d => {
+          const ax = d.buffer.accX?.last ?? 0;
+          const ay = d.buffer.accY?.last ?? 0;
+          const az = d.buffer.accZ?.last ?? 0;
+          const speed = (d.buffer.speed?.last ?? 0) * 3.6;
+          const lat = d.buffer.latitude?.last;
+          const lon = d.buffer.longitude?.last;
+          const gyroX = d.buffer.rotX?.last ?? 0;
 
-          // Update UI
+          // Update Metrics
           speedEl.textContent = speed.toFixed(1);
-          accEl.textContent = ax.toFixed(2);
+          accelXEl.textContent = ax.toFixed(2);
 
-          // Lean Angle: atan2(lateral accel, gravity) — assumes Z is up
-          const lean = Math.atan2(ax, Math.sqrt(ay * ay + 9.81 * 9.81)) * (180 / Math.PI);
+          // Lean Angle (lateral vs vertical)
+          const vertical = Math.sqrt(ay**2 + 9.81**2);
+          const lean = Math.atan2(Math.abs(ax), vertical) * (180 / Math.PI);
           leanEl.textContent = lean.toFixed(1) + "°";
 
-          // Resultant acceleration
-          const res = Math.sqrt(ax*ax + ay*ay + az*az);
-          impactEl.textContent = res.toFixed(1);
+          // Impact (g-force)
+          const g = Math.sqrt(ax**2 + ay**2 + az**2) / 9.81;
+          impactEl.textContent = g.toFixed(2);
 
-          // Chart update
+          // Chart
           accChart.data.labels.push('');
           accChart.data.datasets[0].data.push(ax);
-          if (accChart.data.labels.length > MAX_DATA_POINTS) {
+          if (accChart.data.labels.length > MAX_POINTS) {
             accChart.data.labels.shift();
             accChart.data.datasets[0].data.shift();
           }
           accChart.update('quiet');
 
-          // GPS Path
+          // GPS
           if (lat && lon) {
-            const latLng = [lat, lon];
-            riderPath.addLatLng(latLng);
-            riderMarker.setLatLng(latLng);
-            map.setView(latLng, map.getZoom());
+            const pos = [lat, lon];
+            path.addLatLng(pos);
+            marker.setLatLng(pos);
+            map.setView(pos, map.getZoom());
           }
 
-          // === CRASH / IMPACT DETECTION ===
-          if (res > IMPACT_THRESHOLD || Math.abs(gyroX) > GYRO_THRESHOLD) {
-            triggerCrashAlert();
+          // === CRASH DETECTION ===
+          if (g > (IMPACT_THRESHOLD / 9.81) || Math.abs(gyroX) > GYRO_THRESHOLD) {
+            triggerCrash();
           }
         })
         .catch(() => {
@@ -372,40 +487,42 @@
         });
     }
 
-    function triggerCrashAlert() {
+    function triggerCrash() {
       crashAlert.style.display = 'block';
-      setTimeout(() => {
-        crashAlert.style.display = 'none';
-      }, 5000);
+      setTimeout(() => crashAlert.style.display = 'none', 6000);
 
-      // Optional: vibrate (mobile only)
       if (navigator.vibrate) {
-        navigator.vibrate([500, 300, 500]);
+        navigator.vibrate([600, 300, 600]);
       }
-
-      // Optional: play sound
-      const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgn2u2fV
-      // (add beep sound or use external)
     }
 
     function resetPath() {
-      riderPath.setLatLngs([]);
+      path.setLatLngs([]);
       map.setView([0, 0], 2);
+      accChart.data.labels = [];
+      accChart.data.datasets[0].data = [];
+      accChart.update();
     }
 
-    // === Event Listeners ===
-    connectBtn.addEventListener('click', connect);
-    resetBtn.addEventListener('click', resetPath);
+    // === Events ===
+    connectBtn.onclick = connect;
+    resetBtn.onclick = resetPath;
 
-    // Auto-connect if URL in query string (optional)
-    const urlParams = new URLSearchParams(window.location.search);
-    const autoUrl = urlParams.get('phyphox');
-    if (autoUrl) {
-      phyphoxUrl = autoUrl;
+    // Auto-connect via URL
+    const params = new URLSearchParams(location.search);
+    const url = params.get('phyphox');
+    if (url) {
+      phyphoxUrl = url;
       testConnection();
     } else {
       connect();
     }
+
+    // Help link
+    document.getElementById('helpLink').onclick = (e) => {
+      e.preventDefault();
+      alert("1. Open Phyphox → Create experiment with:\n   • Acceleration (without g)\n   • Location\n   • Gyroscope\n2. Tap 'Remote Access' → Copy URL\n3. Paste here.");
+    };
   </script>
 </body>
 </html>
