@@ -1,954 +1,411 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Impressive Dashboard UI</title>
-    
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet"/>
-    
-    <!-- Font Awesome for Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-    
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
-    <style>
-        :root {
-            --primary: #6366f1;
-            --primary-dark: #4f46e5;
-            --secondary: #10b981;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --info: #3b82f6;
-            --dark: #1f2937;
-            --light: #f9fafb;
-            --gray: #6b7280;
-            --border: #e5e7eb;
-            --sidebar-width: 260px;
-            --header-height: 70px;
-            --radius: 12px;
-            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            color: var(--dark);
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        /* Header */
-        .header {
-            position: fixed;
-            top: 0;
-            left: var(--sidebar-width);
-            right: 0;
-            height: var(--header-height);
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 2rem;
-            z-index: 1000;
-            transition: var(--transition);
-        }
-
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .page-title {
-            font-weight: 600;
-            font-size: 1.5rem;
-            color: var(--dark);
-        }
-
-        .breadcrumb {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: var(--gray);
-            font-size: 0.9rem;
-        }
-
-        .breadcrumb i {
-            font-size: 0.8rem;
-            color: var(--primary);
-        }
-
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 1.5rem;
-        }
-
-        .notification-bell {
-            position: relative;
-            cursor: pointer;
-            padding: 0.5rem;
-            border-radius: 50%;
-            transition: var(--transition);
-        }
-
-        .notification-bell:hover {
-            background: rgba(99, 102, 241, 0.1);
-            color: var(--primary);
-        }
-
-        .badge {
-            position: absolute;
-            top: 0;
-            right: 0;
-            background: var(--danger);
-            color: white;
-            font-size: 0.65rem;
-            font-weight: 600;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid var(--primary);
-            cursor: pointer;
-        }
-
-        /* Sidebar */
-        .sidebar {
-            position: fixed;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: var(--sidebar-width);
-            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
-            color: white;
-            padding: 1.5rem 0;
-            overflow-y: auto;
-            z-index: 1001;
-            transition: var(--transition);
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 0 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .logo-icon {
-            width: 40px;
-            height: 40px;
-            background: var(--primary);
-            border-radius: var(--radius);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            font-weight: bold;
-        }
-
-        .logo-text {
-            font-size: 1.5rem;
-            font-weight: 700;
-            background: linear-gradient(90deg, #6366f1, #8b5cf6);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .nav-menu {
-            list-style: none;
-        }
-
-        .nav-item {
-            margin-bottom: 0.25rem;
-        }
-
-        .nav-link {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 0.75rem 1.5rem;
-            color: rgba(255, 255, 255, 0.7);
-            text-decoration: none;
-            border-radius: 0;
-            transition: var(--transition);
-            position: relative;
-        }
-
-        .nav-link:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            padding-left: 2rem;
-        }
-
-        .nav-link.active {
-            background: rgba(99, 102, 241, 0.2);
-            color: var(--primary);
-            border-left: 4px solid var(--primary);
-            padding-left: calc(1.5rem - 4px);
-        }
-
-        .nav-link.active::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 4px;
-            background: var(--primary);
-        }
-
-        .nav-link i {
-            width: 20px;
-            text-align: center;
-            font-size: 1.1rem;
-        }
-
-        .nav-text {
-            font-weight: 500;
-        }
-
-        .nav-badge {
-            margin-left: auto;
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            font-size: 0.7rem;
-            padding: 0.25rem 0.5rem;
-            border-radius: 1rem;
-            font-weight: 600;
-        }
-
-        /* Main Content */
-        .main-content {
-            margin-left: var(--sidebar-width);
-            margin-top: var(--header-height);
-            padding: 2rem;
-            min-height: calc(100vh - var(--header-height));
-            transition: var(--transition);
-        }
-
-        .page-header {
-            margin-bottom: 2rem;
-        }
-
-        .page-header h1 {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--dark);
-            margin-bottom: 0.5rem;
-        }
-
-        .page-header p {
-            color: var(--gray);
-            font-size: 1rem;
-        }
-
-        /* Stats Cards */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .stat-card {
-            background: white;
-            padding: 1.5rem;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            transition: var(--transition);
-            border: 1px solid var(--border);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 4px;
-            height: 100%;
-            background: var(--primary);
-            transition: var(--transition);
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        }
-
-        .stat-card.secondary::before { background: var(--secondary); }
-        .stat-card.danger::before { background: var(--danger); }
-        .stat-card.warning::before { background: var(--warning); }
-
-        .stat-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-
-        .stat-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: var(--radius);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            color: white;
-        }
-
-        .stat-card.primary .stat-icon { background: rgba(99, 102, 241, 0.2); color: var(--primary); }
-        .stat-card.secondary .stat-icon { background: rgba(16, 185, 129, 0.2); color: var(--secondary); }
-        .stat-card.danger .stat-icon { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
-        .stat-card.warning .stat-icon { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
-
-        .stat-value {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--dark);
-            margin-bottom: 0.25rem;
-        }
-
-        .stat-label {
-            color: var(--gray);
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-
-        .stat-change {
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
-            font-size: 0.8rem;
-            font-weight: 600;
-            margin-top: 0.5rem;
-        }
-
-        .stat-change.positive { color: var(--secondary); }
-        .stat-change.negative { color: var(--danger); }
-
-        /* Content Grid */
-        .content-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        @media (max-width: 1200px) {
-            .content-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* Chart Card */
-        .chart-card {
-            background: white;
-            padding: 1.5rem;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border);
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .card-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: var(--dark);
-        }
-
-        .card-actions {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .btn-icon {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--gray);
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .btn-icon:hover {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-        }
-
-        /* Activity Feed */
-        .activity-card {
-            background: white;
-            padding: 1.5rem;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border);
-            height: fit-content;
-        }
-
-        .activity-item {
-            display: flex;
-            gap: 1rem;
-            padding: 1rem 0;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .activity-item:last-child {
-            border-bottom: none;
-            padding-bottom: 0;
-        }
-
-        .activity-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-
-        .activity-icon.sales { background: rgba(99, 102, 241, 0.1); color: var(--primary); }
-        .activity-icon.users { background: rgba(16, 185, 129, 0.1); color: var(--secondary); }
-        .activity-icon.alert { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
-
-        .activity-content {
-            flex: 1;
-        }
-
-        .activity-title {
-            font-weight: 600;
-            color: var(--dark);
-            margin-bottom: 0.25rem;
-        }
-
-        .activity-time {
-            font-size: 0.8rem;
-            color: var(--gray);
-        }
-
-        /* Table Card */
-        .table-card {
-            background: white;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border);
-            overflow: hidden;
-            margin-top: 2rem;
-        }
-
-        .table-header {
-            padding: 1.5rem;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .search-box {
-            position: relative;
-            width: 300px;
-        }
-
-        .search-box input {
-            width: 100%;
-            padding: 0.75rem 1rem 0.75rem 2.5rem;
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            font-size: 0.9rem;
-            transition: var(--transition);
-        }
-
-        .search-box input:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-        }
-
-        .search-box i {
-            position: absolute;
-            left: 0.75rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--gray);
-        }
-
-        .table-container {
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th {
-            text-align: left;
-            padding: 1rem 1.5rem;
-            background: #f8fafc;
-            font-weight: 600;
-            color: var(--dark);
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        td {
-            padding: 1rem 1.5rem;
-            border-bottom: 1px solid var(--border);
-            font-size: 0.95rem;
-        }
-
-        tr:hover {
-            background: #f8fafc;
-        }
-
-        .status {
-            padding: 0.35rem 0.75rem;
-            border-radius: 1rem;
-            font-size: 0.8rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .status.active { background: rgba(16, 185, 129, 0.1); color: var(--secondary); }
-        .status.pending { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
-        .status.inactive { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
-
-        .action-btn {
-            background: none;
-            border: none;
-            color: var(--gray);
-            cursor: pointer;
-            padding: 0.5rem;
-            border-radius: 50%;
-            transition: var(--transition);
-        }
-
-        .action-btn:hover {
-            background: rgba(99, 102, 241, 0.1);
-            color: var(--primary);
-        }
-
-        /* Responsive */
-        @media (max-width: 992px) {
-            .sidebar {
-                transform: translateX(-100%);
-            }
-            
-            .main-content, .header {
-                margin-left: 0;
-            }
-            
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .header {
-                padding: 0 1rem;
-            }
-            
-            .page-title {
-                font-size: 1.25rem;
-            }
-            
-            .content-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .search-box {
-                width: 100%;
-            }
-        }
-
-        /* Animations */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .animate-fade {
-            animation: fadeIn 0.6s ease-out forwards;
-        }
-    </style>
-</body>
-</html>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Rider Telemetry Live</title>
+
+  <!-- Styles -->
+  <style>
+    :root {
+      --primary: #0055cc;
+      --danger: #dc2626;
+      --success: #16a34a;
+      --warning: #f59e0b;
+      --dark: #1f2937;
+      --light: #f8fafc;
+      --gray: #64748b;
+      --border: #e2e8f0;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #f0f7ff 0%, #e0ecff 100%);
+      color: var(--dark);
+      min-height: 100vh;
+      padding: 1rem;
+      line-height: 1.5;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    .status {
+      display: inline-block;
+      padding: 0.35rem 0.75rem;
+      border-radius: 2rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-top: 0.5rem;
+    }
+
+    .status.connected { background: rgba(22, 163, 74, 0.1); color: var(--success); }
+    .status.disconnected { background: rgba(220, 38, 38, 0.1); color: var(--danger); }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+
+    .metric {
+      background: white;
+      padding: 1.2rem;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      text-align: center;
+      border: 1px solid var(--border);
+    }
+
+    .metric h3 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 0.25rem;
+    }
+
+    .metric p {
+      font-size: 0.9rem;
+      color: var(--gray);
+      font-weight: 500;
+    }
+
+    .lean-display {
+      font-size: 1.8rem !important;
+      color: #7c3aed;
+    }
+
+    .chart-container, #map {
+      background: white;
+      border-radius: 16px;
+      padding: 1rem;
+      margin: 1.5rem 0;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      border: 1px solid var(--border);
+    }
+
+    #map {
+      height: 45vh;
+      border-radius: 16px;
+    }
+
+    canvas {
+      max-height: 200px;
+    }
+
+    .alert {
+      position: fixed;
+      top: 1rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--danger);
+      color: white;
+      padding: 1rem 1.5rem;
+      border-radius: 12px;
+      font-weight: 600;
+      box-shadow: 0 10px 25px rgba(220, 38, 38, 0.3);
+      z-index: 1000;
+      animation: pulse 0.6s ease-in-out;
+      display: none;
+    }
+
+    @keyframes pulse {
+      0% { transform: translateX(-50%) scale(0.9); }
+      50% { transform: translateX(-50%) scale(1.05); }
+      100% { transform: translateX(-50%) scale(1); }
+    }
+
+    .controls {
+      text-align: center;
+      margin: 1rem 0;
+    }
+
+    button {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      margin: 0 0.5rem;
+      transition: all 0.2s;
+    }
+
+    button:hover {
+      background: #0044aa;
+      transform: translateY(-2px);
+    }
+
+    button.danger {
+      background: var(--danger);
+    }
+
+    .info {
+      font-size: 0.85rem;
+      color: var(--gray);
+      text-align: center;
+      margin-top: 1rem;
+    }
+
+    @media (max-width: 480px) {
+      h1 { font-size: 1.5rem; }
+      .metric h3 { font-size: 1.8rem; }
+      canvas { max-height: 150px; }
+    }
+  </style>
+
+  <!-- Libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+</head>
 <body>
-    <!-- Header -->
-    <header class="header">
-        <div class="header-left">
-            <h1 class="page-title">Dashboard</h1>
-            <div class="breadcrumb">
-                <span>Home</span>
-                <i class="fas fa-chevron-right"></i>
-                <span class="active">Dashboard</span>
-            </div>
-        </div>
-        <div class="header-right">
-            <div class="notification-bell">
-                <i class="fas fa-bell"></i>
-                <span class="badge">3</span>
-            </div>
-            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="User" class="user-avatar"/>
-        </div>
-    </header>
 
-    <!-- Sidebar -->
-    <aside class="sidebar">
-        <div class="logo">
-            <div class="logo-icon">D</div>
-            <div class="logo-text">Dashboard</div>
-        </div>
-        <nav>
-            <ul class="nav-menu">
-                <li class="nav-item">
-                    <a href="#" class="nav-link active">
-                        <i class="fas fa-home"></i>
-                        <span class="nav-text">Overview</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link">
-                        <i class="fas fa-chart-line"></i>
-                        <span class="nav-text">Analytics</span>
-                        <span class="nav-badge">New</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link">
-                        <i class="fas fa-users"></i>
-                        <span class="nav-text">Customers</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link">
-                        <i class="fas fa-shopping-cart"></i>
-                        <span class="nav-text">Orders</span>
-                        <span class="nav-badge">12</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link">
-                        <i class="fas fa-box"></i>
-                        <span class="nav-text">Products</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link">
-                        <i class="fas fa-cog"></i>
-                        <span class="nav-text">Settings</span>
-                    </a>
-                </li>
-            </ul>
-        </nav>
-    </aside>
+  <header>
+    <h1>Rider Telemetry</h1>
+    <div class="status" id="connectionStatus">Connecting...</div>
+  </header>
 
-    <!-- Main Content -->
-    <main class="main-content">
-        <div class="page-header">
-            <h1>Welcome back, Alex!</h1>
-            <p>Here's what's happening with your business today.</p>
-        </div>
+  <div class="controls">
+    <button id="connectBtn">Connect to Phyphox</button>
+    <button id="resetBtn" class="danger">Reset Path</button>
+  </div>
 
-        <!-- Stats Cards -->
-        <div class="stats-grid">
-            <div class="stat-card primary animate-fade" style="animation-delay: 0.1s;">
-                <div class="stat-header">
-                    <div>
-                        <div class="stat-value">$45,231</div>
-                        <div class="stat-label">Total Revenue</div>
-                    </div>
-                    <div class="stat-icon">
-                        <i class="fas fa-dollar-sign"></i>
-                    </div>
-                </div>
-                <div class="stat-change positive">
-                    <i class="fas fa-arrow-up"></i>
-                    <span>12.5% from last month</span>
-                </div>
-            </div>
+  <div class="metrics">
+    <div class="metric">
+      <h3 id="speed">0</h3>
+      <p>Speed (km/h)</p>
+    </div>
+    <div class="metric">
+      <h3 id="lean" class="lean-display">0°</h3>
+      <p>Lean Angle</p>
+    </div>
+    <div class="metric">
+      <h3 id="acc">0.0</h3>
+      <p>Accel X (m/s²)</p>
+    </div>
+    <div class="metric">
+      <h3 id="impact">—</h3>
+      <p>Impact</p>
+    </div>
+  </div>
 
-            <div class="stat-card secondary animate-fade" style="animation-delay: 0.2s;">
-                <div class="stat-header">
-                    <div>
-                        <div class="stat-value">2,345</div>
-                        <div class="stat-label">Active Users</div>
-                    </div>
-                    <div class="stat-icon">
-                        <i class="fas fa-users"></i>
-                    </div>
-                </div>
-                <div class="stat-change positive">
-                    <i class="fas fa-arrow-up"></i>
-                    <span>8.2% from last week</span>
-                </div>
-            </div>
+  <div class="chart-container">
+    <canvas id="accChart"></canvas>
+  </div>
 
-            <div class="stat-card danger animate-fade" style="animation-delay: 0.3s;">
-                <div class="stat-header">
-                    <div>
-                        <div class="stat-value">143</div>
-                        <div class="stat-label">Pending Orders</div>
-                    </div>
-                    <div class="stat-icon">
-                        <i class="fas fa-shopping-cart"></i>
-                    </div>
-                </div>
-                <div class="stat-change negative">
-                    <i class="fas fa-arrow-down"></i>
-                    <span>3.1% from yesterday</span>
-                </div>
-            </div>
+  <div id="map"></div>
 
-            <div class="stat-card warning animate-fade" style="animation-delay: 0.4s;">
-                <div class="stat-header">
-                    <div>
-                        <div class="stat-value">89.2%</div>
-                        <div class="stat-label">Conversion Rate</div>
-                    </div>
-                    <div class="stat-icon">
-                        <i class="fas fa-chart-pie"></i>
-                    </div>
-                </div>
-                <div class="stat-change positive">
-                    <i class="fas fa-arrow-up"></i>
-                    <span>2.4% improvement</span>
-                </div>
-            </div>
-        </div>
+  <div class="alert" id="crashAlert">
+    HIGH IMPACT DETECTED! Check rider immediately.
+  </div>
 
-        <!-- Content Grid -->
-        <div class="content-grid">
-            <!-- Revenue Chart -->
-            <div class="chart-card animate-fade" style="animation-delay: 0.5s;">
-                <div class="card-header">
-                    <h3 class="card-title">Revenue Overview</h3>
-                    <div class="card-actions">
-                        <button class="btn-icon"><i class="fas fa-download"></i></button>
-                        <button class="btn-icon"><i class="fas fa-ellipsis-h"></i></button>
-                    </div>
-                </div>
-                <canvas id="revenueChart" height="300"></canvas>
-            </div>
+  <div class="info">
+    Mount sensor phone on <strong>upper chest</strong> or <strong>helmet</strong>. Use Phyphox → Remote Access.
+  </div>
 
-            <!-- Recent Activity -->
-            <div class="activity-card animate-fade" style="animation-delay: 0.6s;">
-                <div class="card-header">
-                    <h3 class="card-title">Recent Activity</h3>
-                </div>
-                <div class="activity-item">
-                    <div class="activity-icon sales">
-                        <i class="fas fa-shopping-bag"></i>
-                    </div>
-                    <div class="activity-content">
-                        <div class="activity-title">New order #1234</div>
-                        <div class="activity-time">2 minutes ago</div>
-                    </div>
-                </div>
-                <div class="activity-item">
-                    <div class="activity-icon users">
-                        <i class="fas fa-user-plus"></i>
-                    </div>
-                    <div class="activity-content">
-                        <div class="activity-title">New user registration</div>
-                        <div class="activity-time">15 minutes ago</div>
-                    </div>
-                </div>
-                <div class="activity-item">
-                    <div class="activity-icon alert">
-                        <i class="fas fa-exclamation-triangle"></i>
-                    </div>
-                    <div class="activity-content">
-                        <div class="activity-title">Low stock alert: Product XYZ</div>
-                        <div class="activity-time">1 hour ago</div>
-                    </div>
-                </div>
-            </div>
-        </div>
+  <script>
+    // === CONFIG ===
+    const IMPACT_THRESHOLD = 30.0;  // ~3g
+    const GYRO_THRESHOLD = 300;     // deg/s (tune based on your experiment)
+    const MAX_DATA_POINTS = 50;
 
-        <!-- Recent Orders Table -->
-        <div class="table-card animate-fade" style="animation-delay: 0.7s;">
-            <div class="table-header">
-                <h3 class="card-title">Recent Orders</h3>
-                <div class="search-box">
-                    <i class="fas fa-search"></i>
-                    <input type="text" placeholder="Search orders..."/>
-                </div>
-            </div>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Order ID</th>
-                            <th>Customer</th>
-                            <th>Date</th>
-                            <th>Amount</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>#12345</td>
-                            <td>John Doe</td>
-                            <td>Nov 8, 2025</td>
-                            <td>$245.00</td>
-                            <td><span class="status active">Delivered</span></td>
-                            <td>
-                                <button class="action-btn"><i class="fas fa-eye"></i></button>
-                                <button class="action-btn"><i class="fas fa-edit"></i></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>#12344</td>
-                            <td>Jane Smith</td>
-                            <td>Nov 7, 2025</td>
-                            <td>$189.50</td>
-                            <td><span class="status pending">Processing</span></td>
-                            <td>
-                                <button class="action-btn"><i class="fas fa-eye"></i></button>
-                                <button class="action-btn"><i class="fas fa-edit"></i></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>#12343</td>
-                            <td>Mike Johnson</td>
-                            <td>Nov 7, 2025</td>
-                            <td>$420.00</td>
-                            <td><span class="status active">Delivered</span></td>
-                            <td>
-                                <button class="action-btn"><i class="fas fa-eye"></i></button>
-                                <button class="action-btn"><i class="fas fa-edit"></i></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>#12342</td>
-                            <td>Sarah Williams</td>
-                            <td>Nov 6, 2025</td>
-                            <td>$89.99</td>
-                            <td><span class="status inactive">Cancelled</span></td>
-                            <td>
-                                <button class="action-btn"><i class="fas fa-eye"></i></button>
-                                <button class="action-btn"><i class="fas fa-edit"></i></button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </main>
+    // === DOM Elements ===
+    const speedEl = document.getElementById('speed');
+    const leanEl = document.getElementById('lean');
+    const accEl = document.getElementById('acc');
+    const impactEl = document.getElementById('impact');
+    const statusEl = document.getElementById('connectionStatus');
+    const crashAlert = document.getElementById('crashAlert');
+    const connectBtn = document.getElementById('connectBtn');
+    const resetBtn = document.getElementById('resetBtn');
 
-    <script>
-        // Revenue Chart
-        const ctx = document.getElementById('revenueChart').getContext('2d');
-        const revenueChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov'],
-                datasets: [{
-                    label: 'Revenue',
-                    data: [12000, 19000, 15000, 25000, 22000, 30000, 28000, 35000, 32000, 38000, 45231],
-                    borderColor: '#6366f1',
-                    backgroundColor: 'rgba(99, 102, 241, 0.1)',
-                    borderWidth: 3,
-                    pointBackgroundColor: '#6366f1',
-                    pointRadius: 6,
-                    pointHoverRadius: 8,
-                    tension: 0.4,
-                    fill: true
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
-                    },
-                    tooltip: {
-                        backgroundColor: 'rgba(31, 41, 55, 0.9)',
-                        titleColor: '#fff',
-                        bodyColor: '#fff',
-                        cornerRadius: 8,
-                        displayColors: false
-                    }
-                },
-                scales: {
-                    x: {
-                        grid: {
-                            display: false
-                        },
-                        ticks: {
-                            color: '#6b7280'
-                        }
-                    },
-                    y: {
-                        grid: {
-                            color: 'rgba(229, 231, 235, 0.5)'
-                        },
-                        ticks: {
-                            color: '#6b7280',
-                            callback: function(value) {
-                                return '$' + value.toLocaleString();
-                            }
-                        }
-                    }
-                },
-                interaction: {
-                    intersect: false,
-                    mode: 'index'
-                }
-            }
+    // === State ===
+    let phyphoxUrl = null;
+    let interval = null;
+    let isConnected = false;
+
+    // === Leaflet Map ===
+    const map = L.map('map').setView([0, 0], 16);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    let riderPath = L.polyline([], { color: '#0055cc', weight: 5, opacity: 0.8 }).addTo(map);
+    let riderMarker = L.circleMarker([0, 0], {
+      radius: 8,
+      fillColor: '#0055cc',
+      color: '#003366',
+      weight: 2,
+      opacity: 1,
+      fillOpacity: 0.9
+    }).addTo(map);
+
+    // === Chart.js ===
+    const ctx = document.getElementById('accChart').getContext('2d');
+    const accChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [{
+          label: 'Accel X (m/s²)',
+          data: [],
+          borderColor: '#0055cc',
+          backgroundColor: 'rgba(0, 85, 204, 0.1)',
+          fill: true,
+          tension: 0.3,
+          pointRadius: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { beginAtZero: false },
+          x: { display: false }
+        }
+      }
+    });
+
+    // === Functions ===
+    function connect() {
+      phyphoxUrl = prompt("Enter Phyphox Remote Access URL (e.g., http://192.168.1.34:8080)")?.trim();
+      if (!phyphoxUrl) return;
+
+      statusEl.textContent = "Connecting...";
+      statusEl.className = "status disconnected";
+      testConnection();
+    }
+
+    function testConnection() {
+      fetch(phyphoxUrl)
+        .then(r => r.json())
+        .then(() => {
+          isConnected = true;
+          statusEl.textContent = "Connected";
+          statusEl.className = "status connected";
+          startStreaming();
+        })
+        .catch(() => {
+          statusEl.textContent = "Failed. Retrying...";
+          setTimeout(testConnection, 2000);
         });
+    }
 
-        // Sidebar toggle for mobile (optional enhancement)
-        document.querySelector('.header').addEventListener('click', function(e) {
-            if (window.innerWidth <= 992 && e.target.closest('.page-title')) {
-                document.querySelector('.sidebar').style.transform = 'translateX(0)';
-            }
+    function startStreaming() {
+      if (interval) clearInterval(interval);
+      interval = setInterval(updateTelemetry, 200); // 5 Hz
+    }
+
+    function updateTelemetry() {
+      if (!isConnected) return;
+
+      fetch(phyphoxUrl)
+        .then(r => r.json())
+        .then(data => {
+          // Extract latest values
+          const ax = data.buffer.accX?.last ?? 0;
+          const ay = data.buffer.accY?.last ?? 0;
+          const az = data.buffer.accZ?.last ?? 0;
+          const speed = (data.buffer.speed?.last ?? 0) * 3.6; // m/s → km/h
+          const lat = data.buffer.latitude?.last;
+          const lon = data.buffer.longitude?.last;
+          const gyroX = data.buffer.rotX?.last ?? 0;
+
+          // Update UI
+          speedEl.textContent = speed.toFixed(1);
+          accEl.textContent = ax.toFixed(2);
+
+          // Lean Angle: atan2(lateral accel, gravity) — assumes Z is up
+          const lean = Math.atan2(ax, Math.sqrt(ay * ay + 9.81 * 9.81)) * (180 / Math.PI);
+          leanEl.textContent = lean.toFixed(1) + "°";
+
+          // Resultant acceleration
+          const res = Math.sqrt(ax*ax + ay*ay + az*az);
+          impactEl.textContent = res.toFixed(1);
+
+          // Chart update
+          accChart.data.labels.push('');
+          accChart.data.datasets[0].data.push(ax);
+          if (accChart.data.labels.length > MAX_DATA_POINTS) {
+            accChart.data.labels.shift();
+            accChart.data.datasets[0].data.shift();
+          }
+          accChart.update('quiet');
+
+          // GPS Path
+          if (lat && lon) {
+            const latLng = [lat, lon];
+            riderPath.addLatLng(latLng);
+            riderMarker.setLatLng(latLng);
+            map.setView(latLng, map.getZoom());
+          }
+
+          // === CRASH / IMPACT DETECTION ===
+          if (res > IMPACT_THRESHOLD || Math.abs(gyroX) > GYRO_THRESHOLD) {
+            triggerCrashAlert();
+          }
+        })
+        .catch(() => {
+          isConnected = false;
+          statusEl.textContent = "Lost Connection";
+          statusEl.className = "status disconnected";
+          clearInterval(interval);
+          setTimeout(testConnection, 3000);
         });
-    </script>
+    }
+
+    function triggerCrashAlert() {
+      crashAlert.style.display = 'block';
+      setTimeout(() => {
+        crashAlert.style.display = 'none';
+      }, 5000);
+
+      // Optional: vibrate (mobile only)
+      if (navigator.vibrate) {
+        navigator.vibrate([500, 300, 500]);
+      }
+
+      // Optional: play sound
+      const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgn2u2fV
+      // (add beep sound or use external)
+    }
+
+    function resetPath() {
+      riderPath.setLatLngs([]);
+      map.setView([0, 0], 2);
+    }
+
+    // === Event Listeners ===
+    connectBtn.addEventListener('click', connect);
+    resetBtn.addEventListener('click', resetPath);
+
+    // Auto-connect if URL in query string (optional)
+    const urlParams = new URLSearchParams(window.location.search);
+    const autoUrl = urlParams.get('phyphox');
+    if (autoUrl) {
+      phyphoxUrl = autoUrl;
+      testConnection();
+    } else {
+      connect();
+    }
+  </script>
 </body>
 </html>
